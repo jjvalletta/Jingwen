@@ -10,7 +10,8 @@ Francis Crick Institute, London
 # Data
 Contains all data sets used in the analysis.
 
-`acleaning.py`: Cleans up `Original` data to produce `Processed` and `Log2FC`
+* `acleaning.py`: Cleans up `Original` data to produce `Processed` and `Log2FC`
+* `aparse_immune_genes.R`: Parses [MSigDB's](http://software.broadinstitute.org/gsea/msigdb/collections.jsp#C7) .gmt file to list of genes
 
 ## Original
 Data as received from Jingwen or downloaded from original source.
@@ -45,12 +46,16 @@ Data as received from Jingwen or downloaded from original source.
 ## Top-level scripts
 
 * `script.py`: Top-level script to cluster gene expression data (computationally expensive)
+* `analysis.py`: Top-level script to analyse the clustering results (compare time-profiles, gene enrichment analysis, etc.)
+* `reactome_ready.py`: A very short script to take each gene list (cluster) and save it as a .txt file so that it can be imported in Cytoscape/ReactomePlugin
 
 ## Custom modules
 
-All the scripts used to analyse the data
+All the modules used to analyse the data
 
 * `config.py`: Configuration file containing all constants used
 * `input_output.py`: Input/output functions (creating folders, saving to pdf, pickle etc)
 * `gaussian_process.py`: Wrapper functions for Gaussian Process Models
 * `util.py`: Various utility functions
+* `enrichr`: Gene set enrichment analysis using [Enrichr](http://amp.pharm.mssm.edu/Enrichr/)
+* `compare`: Functions to compare time-profiles of genes or clusters across experimental conditions

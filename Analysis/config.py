@@ -15,6 +15,7 @@
 # Libraries
 import os
 from palettable.tableau import Tableau_20 # version 3.1.0
+from palettable.colorbrewer.qualitative import Set1_7 # PCA colours
 # "Local" libraries
 import input_output as io
 
@@ -22,6 +23,7 @@ import input_output as io
 # Paths
 DATA_PATH = os.path.join('..', 'Data', 'Log2FC') # location of clean data Blood/Spleen AS/CB data
 BASE_PATH = os.path.join('..', 'Results', 'Analysis030917') # results base path
+IMMUNE_PATH = os.path.join('..', 'Data', 'ImmuneGenes', 'immune_genes.csv') # list of immune genes
 
 # All experimental conditions
 ORGANS = ['Blood', 'Spleen'] # organs
@@ -45,9 +47,12 @@ UPPER_BOUND_NOISE = 2
 XLIM = (0, 12)  
 YLIM = (-7, 7)
 COL = {'Blood': '#e41a1c', 'Spleen': '#377eb8', 
-       'Shade': '#525252', 'Zero': 'black'} # blood: red, spleen: blue
+       'Shade': '#525252', 'Zero': 'black',
+       'Cycle': Tableau_20.hex_colors,
+       'PCA': Set1_7.hex_colors}
+COL['PCA'][5] = COL['PCA'][0] # don't like yellow use pink instead
+COL['PCA'][0] = '#000000' # Naive/Control == Black
 LWD = {'L': 4, 'M': 2, 'S': 0.5} # linewidth; large, medium, small
-CYCLE_COL = Tableau_20.hex_colors # colours to cycle through when plotting
 ALPHA = 0.5 # set transparency
 
 # Pathway analysis
@@ -100,6 +105,7 @@ def setup_folders(basePath=BASE_PATH, dataPath=DATA_PATH):
     # PathwayAnalysis
     path['PathwayAnalysis'] = {}
     path['PathwayAnalysis']['Enrichr'] = io.create_folder(os.path.join(basePath, 'PathwayAnalysis'), 'Enrichr')
+    path['PathwayAnalysis']['Reactome'] = io.create_folder(os.path.join(basePath, 'PathwayAnalysis'), 'Reactome')
     # Misc
     path['Misc'] = io.create_folder(basePath, 'Misc')
     
