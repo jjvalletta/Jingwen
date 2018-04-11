@@ -140,3 +140,45 @@ def pca_plot(organ, strain, path, bLegend=False):
     io.save_pdf(os.path.join(path['Misc'], "PCA" + organ + strain + ".pdf"), hFig) 
 
 #*************************************************************************************************#
+def cluster_membership_boxplot(organ, strain, path):
+    """
+    Boxplot of posterior probability that a gene pertains to that cluster
+
+    Arguments
+    =========   
+    organ - Blood/Spleen
+    strain - AS/CB
+    path - dictionary with all results paths
+    
+    Returns
+    =========
+    None - Figure is saved to 'Misc' folder
+    """
+    # Read model fit
+    fit = io.load_pickle(os.path.join(path['Clust']['Model'], organ + strain + ".pickle"))    
+    fit.reorder()
+    labels = np.argmax(fit.phi, axis=1) # 0, 1, 2, etc.
+    # Read cluster names e.g 0 --> AS_Bl_01
+    data = pd.read_csv(os.path.join(path['Clust']['Centres'], organ + strain + ".csv"), sep=",")      
+    
+    # Create a list of cluster membership
+    membership = [] 
+    clustName = []
+    for label in np.unique(labels):
+        membership.append(fit.phi[labels==label, label])
+        clustName.append(data['Cluster'][label])
+
+    # Create boxplot
+    hFig = plt.figure(figsize=(16/1.2, 9/2))    
+    hAx = hFig.gca()    
+    hAx.boxplot(membership, labels=clustName, patch_artist=True, notch=True,
+                boxprops={"facecolor": COL[organ]},
+                medianprops={"color": "black", "linewidth": 3},
+                whiskerprops={"color": "black"})
+    hAx.set_ylabel("Posterior probability of assigning gene to cluster")
+    hAx.set_ylim(0, 1)
+    
+    # Save figure to file
+    filePath = os.path.join(path['Misc'], "ClusterMembership" + organ + strain + '.pdf')    
+    io.save_pdf(filePath, hFig)
+    
