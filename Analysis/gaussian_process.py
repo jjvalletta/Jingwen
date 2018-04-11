@@ -51,8 +51,9 @@ def gene_model(x, y):
                                                       config.UPPER_BOUND_NOISE, warning=False)
     GPModel.rbf.lengthscale.constrain_bounded(config.LOWER_BOUND_LENGTHSCALE, 
                                               config.UPPER_BOUND_LENGTHSCALE, warning=False)
-    # Optimise hyperparameters
-    GPModel.optimize()
+    # Optimise hyperparameters (start at various random init conditions in parallel)
+    GPModel.optimize_restarts(num_restarts=4*4, robust=True, verbose=False, 
+                              parallel=True, num_processes=4)
     
     return GPModel
 
@@ -223,10 +224,15 @@ def cluster_with_MOHGP(probesToCluster, organ, strain, K, alpha, path, seed=0):
                                           config.UPPER_BOUND_LENGTHSCALE , warning=False)
     fit.sum.rbf.lengthscale.constrain_bounded(config.LOWER_BOUND_LENGTHSCALE, 
                                               config.UPPER_BOUND_LENGTHSCALE , warning=False)    
-    fit.hyperparam_opt_interval = 1000 # how often to optimize the hyperparameters
+    
+    # Recall conjugate natural gradients on the variational parameters, interleaved 
+    # with gradient based optimization of any non-variational parameters. 
+    # hyperparam_interval dictates how often this happens.
+    fit.hyperparam_interval = 1000 # how often to optimize the hyperparameters (avoid fitting GP params too early)
+    fit.hyperparam_opt_args['max_iters']=100 # max_iters for GP params fitting
     
     # Optimise hyperparameters
-    fit.optimize()
+    fit.optimize(verbose=True)
     fit.systematic_splits(verbose=False)
     
     # Name and reorder cluster columns i.e cluster 1 = the biggest one etc..   
