@@ -50,16 +50,18 @@ def top_ranked_genes(organ, strain, path, topRanked=TOP_RANKED, IDType='ProbeID'
     strain - AS/CB
     path - a structured dictionary of paths returned by config
     topRanked - no. of top ranked genes to consider
-    returnType - whether to return a set of 'ProbeID' or 'Symbol'
+    IDType - whether to return a set of 'ProbeID' or 'Symbol'
     
     Returns
     =========
     Set of top ranked probeID/genesymbol
 
     """    
-    # Find top ranked genes 
-    data = pd.read_csv(os.path.join(path['GPFit']['Metrics'], organ + strain + ".csv"))
-    data = data.sort_values(by='rank', ascending=False) # sort by rank    
+    # Find top ranked UNIQUE genes
+    # For multiple probes that point to the same gene symbol retain the 
+    # probe that had the highest ranking
+    data = pd.read_csv(os.path.join(path['GPFit']['Metrics'], organ + strain + ".csv"))   
+    data = data.sort_values(by='rank', ascending=False).drop_duplicates(subset=['Symbol'], keep='first')
 
     return set(data.iloc[:topRanked][IDType])
 
