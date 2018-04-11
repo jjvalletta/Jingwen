@@ -44,7 +44,7 @@ LOWER_BOUND_NOISE = 0.0001
 UPPER_BOUND_NOISE = 2
 
 # Plotting control (I want all plots to look the same)
-XLIM = (0, 12)  
+XLIM = (-0.1, 12.1)  
 YLIM = (-7, 7)
 COL = {'Blood': '#e41a1c', 'Spleen': '#377eb8', 
        'Shade': '#525252', 'Zero': 'black',

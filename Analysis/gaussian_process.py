@@ -19,6 +19,7 @@ import numpy as np # version 1.12.1
 import pandas as pd # version 0.20.1
 import os
 import matplotlib.pyplot as plt # version '2.0.2'
+from GPy.plotting.matplot_dep.base_plots import gpplot, align_subplots
 # "Local" libraries
 import config
 import input_output as io
@@ -298,7 +299,8 @@ def write_MOHGP_results(organ, strain, path, fit, geneID):
 #*************************************************************************************************# 
 def standard_plot(fit):
     """
-    Use the GPy plotting functionality to produce the standard plot for time-series by cluster
+    Replicate some of the GPy plotting functionality to produce time-series plot by cluster
+    but adding other features such as colouring etc.
 
     Arguments
     =========
@@ -309,9 +311,39 @@ def standard_plot(fit):
     hFig - a handle to the figure
 
     """
-    hFig = plt.figure(figsize=(11.69, 8.27))    
-    fit.plot(on_subplots=True, colour=True, in_a_row=False, newfig=False, 
-             min_in_cluster=0.99, joined=False, ylim=config.YLIM)
+    # Init some local vars
+    organ = fit.name[:-2]
+    strain = fit.name[-2:]
+    xTest = np.arange(config.XLIM[0], config.XLIM[1], 0.05)[:, None]
+    
+    # Work out how many subplots we need
+    #Ntotal = np.sum(fit.phi_hat > 0.99) # no. of clusters
+    Ntotal = fit.K # TODO: double check difference between above cmd and this
+    Nx = np.floor(np.sqrt(Ntotal))
+    Ny = int(np.ceil(Ntotal/Nx))
+    Nx = int(Nx)
+    hFig = plt.figure(figsize=(11.69, 8.27))  
+    
+    # Loop through all clusters
+    for i, mu, var in zip(range(fit.K), *fit.predict_components(xTest)):
+        bWant = np.argmax(fit.phi, axis=1) == i # the indices that I want 
+        N = np.sum(bWant)
+        if N > 0:
+            hAx = hFig.add_subplot(Nx, Ny, i+1)
+            # Plot observed data points
+            hAx.plot(fit.X, fit.Y[bWant, :].T, marker='.', c=config.COL[organ], 
+                     mec=config.COL[organ], lw=0, alpha=0.1)
+            # Plot GP: edgecol = mean line col; fillcol = CI col
+            gpplot(xTest.flatten(), mu.flatten(), mu-2.*np.sqrt(np.diag(var)), 
+                   mu+2.*np.sqrt(np.diag(var)), edgecol=config.COL[organ], 
+                   fillcol=config.COL['Shade'], ax=hAx, alpha=0.1)
+            # Label plot, same limits etc.
+            hAx.axhline(y=0, color=config.COL['Zero'], linestyle='--', 
+                        linewidth=config.LWD['M'])
+            name = "{}_{}_{:02d}".format(organ[:2], strain, (i+1))
+            hAx.set_title("{} (N={})".format(name, N), fontsize=9)    
+    # Align all subplots
+    align_subplots(Nx, Ny, xlim=config.XLIM, ylim=config.YLIM) 
     
     return hFig
 
