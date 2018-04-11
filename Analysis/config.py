@@ -22,7 +22,7 @@ import input_output as io
 # Constants
 # Paths
 DATA_PATH = os.path.join('..', 'Data', 'Log2FC') # location of clean data Blood/Spleen AS/CB data
-BASE_PATH = os.path.join('..', 'Results', 'Analysis030917') # results base path
+BASE_PATH = os.path.join('..', 'Results', 'Analysis110418') # results base path
 IMMUNE_PATH = os.path.join('..', 'Data', 'ImmuneGenes', 'immune_genes.csv') # list of immune genes
 
 # All experimental conditions
