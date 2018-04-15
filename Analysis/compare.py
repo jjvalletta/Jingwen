@@ -14,13 +14,15 @@
 #*************************************************************************************************#
 # Libraries
 import pandas as pd # version 0.20.1
+import numpy as np # version 1.12.1
 import os
 import warnings
 import matplotlib.pyplot as plt # version 2.0.2
 from matplotlib_venn import venn2 # venn diagram
-from config import COL, XLIM, YLIM, LWD, ALPHA
+import seaborn as sns # version 0.7.1
 # "Local" libraries
 import input_output as io
+from config import COL, XLIM, YLIM, LWD, ALPHA
 
 #*************************************************************************************************#
 # Functions
@@ -209,4 +211,89 @@ def cluster_subplot(organ, strain, path, shared, only, title, hAx):
     hAx.set_ylabel('$\log_2$(FC) wrt naive')
     hAx.set_xlabel('Days')
         
-#*************************************************************************************************#          
+#*************************************************************************************************#
+def corr2_coeff(A, B):
+    """
+    Computing the correlation coefficient between two multi-dimensional arrays:
+    http://stackoverflow.com/questions/30143417/computing-the-correlation-coefficient-between-two-multi-dimensional-arrays
+
+    Arguments
+    =========
+    A - a 2D numpy array (e.g N1 x D1)
+    B - a 2D numpy array (e.g N2 x D2)    
+    
+    Returns
+    =========
+    Correlation matrix (N1 x N2)
+
+    """
+    # Rowwise mean of input arrays & subtract from input arrays themeselves
+    A_mA = A - A.mean(1)[:, None]
+    B_mB = B - B.mean(1)[:, None]
+
+    # Sum of squares across rows
+    ssA = (A_mA**2).sum(1);
+    ssB = (B_mB**2).sum(1);
+
+    # Finally get corr coeff
+    return np.dot(A_mA,B_mB.T)/np.sqrt(np.dot(ssA[:, None],ssB[None]))
+    
+#*************************************************************************************************#
+def cluster_mean_pearson(organA, strainA, organB, strainB, path):
+    """
+    Correlate the MEAN of each cluster of organA/strainA with every cluster 
+    of organB/strainB and plots a heatmap
+    
+    This could be improved by correlating the individual genes in each cluster 
+    rather than the cluster mean and then report the average, but I think using 
+    the mean profile of the cluster is reasonable for visualisation purposes  
+    
+
+    Arguments
+    =========
+    organ - Blood/Spleen
+    strain - AS/CB
+    path - dictionary with all results paths
+    
+    Returns
+    =========
+    None - Figure is saved to path['Misc']
+
+    """
+    # Load clust centres A
+    data = pd.read_csv(os.path.join(path['Clust']['Centres'], 
+                                    organA + strainA + ".csv"), sep=",")  
+    data = data.set_index('Cluster') # name rows as cluster name
+    clustCentreA = data.values
+    clustNameA = data.index
+    clustNameA.name = organA # change 'Cluster' to 'Spleen' or 'Blood'
+    
+    # Load clust centres B
+    data = pd.read_csv(os.path.join(path['Clust']['Centres'], 
+                                    organB + strainB + ".csv"), sep=",")  
+    data = data.set_index('Cluster') # name rows as cluster name
+    clustCentreB = data.values
+    clustNameB = data.index
+    clustNameB.name = organB # change 'Cluster' to 'Spleen' or 'Blood'
+    
+    # Compute correlation coefficient between pairwise cluster centres
+    corrMatrix = corr2_coeff(clustCentreA, clustCentreB)
+    #corrMatrix[corrMatrix<0.6] = 0
+    #corrMatrix[corrMatrix>=0.6] = 1
+    df = pd.DataFrame(data=corrMatrix, index=clustNameA, columns=clustNameB) 
+    
+    # Plot heatmap        
+    # method = http://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html
+    # metric = http://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.pdist.html
+    #obj = sns.clustermap(df, method='ward', metric='euclidean', cmap='gray_r')#, vmin=-1, vmax=1)
+    obj = sns.clustermap(df, method='ward', metric='euclidean', vmin=-1, vmax=1, 
+                         annot=True, fmt=".2f", figsize=(12, 12))
+    # Rotate ticks
+    plt.setp(obj.ax_heatmap.xaxis.get_majorticklabels(), rotation=90)
+    plt.setp(obj.ax_heatmap.yaxis.get_majorticklabels(), rotation=0)
+
+    # Save to file
+    fileName = 'Heatmap_' + organA + strainA + '_' + organB + strainB + '.pdf' 
+    filePath = os.path.join(path['Misc'], fileName)    
+    obj.savefig(filePath) 
+    plt.close(obj.fig) # close figure          
