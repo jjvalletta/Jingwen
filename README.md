@@ -37,6 +37,13 @@ Data as received from Jingwen or downloaded from original source.
 ## Log2FC
 * `Blood/Spleen AS/CB.csv`: Same as `Processed` data but with log 2 fold change computed (day 0 and day 12 naive mice pooled together) 
 
+## DeconReady
+Deconvolution/[CIBERSORT](https://www.nature.com/articles/nmeth.3337.pdf) "ready" files created by `adecon_ready.R`
+
+* `srep40508-s1.csv`: The signature matrix downloaded from [here](https://www.nature.com/articles/srep40508)
+* `SigMatrix.txt`: Same as `srep40508-s1.csv` but tab-delimited (as required by the CIBERSORT function)
+* `Blood/Spleen AS/CB.txt`: Same as `Processed` data but tab-delimited **and** retaining only the top ranked probe for probes mapping to the same gene symbol (as ranked by the Gaussian Process fit). 
+
 # Analysis
 
 ## Dependencies
