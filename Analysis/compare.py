@@ -70,7 +70,7 @@ def genes(organs, strains, path, geneDF, desc=''):
             # Set limits
             hAx[i].set_xlim(XLIM)
             hAx[i].set_ylim(YLIM)
-            hAx[i].set_title('{}{} {} (#{} probes/genes)'.format(organ, strain, desc, y.shape[0]))
+            hAx[i].set_title('{}{} {} (#{} genes)'.format(organ, strain, desc, y.shape[0]))
             hAx[i].set_ylabel('$\log_2$(FC) wrt naive')
             hAx[i].set_xlabel('Days')
             #hAx[i].set_yticks(np.arange(-6, 7, 2))
