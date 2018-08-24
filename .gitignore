@@ -8,3 +8,6 @@ Data/ImmuneGenes
 Manuscript/
 *.Rhistory
 Data/DeconReady/
+CellType/Results/
+CellType/_output/
+CellType/cibersort.R
