@@ -42,7 +42,7 @@ Deconvolution/[CIBERSORT](https://www.nature.com/articles/nmeth.3337.pdf) "ready
 
 * `srep40508-s1.csv`: The signature matrix downloaded from [here](https://www.nature.com/articles/srep40508)
 * `SigMatrix.txt`: Same as `srep40508-s1.csv` but tab-delimited (as required by the CIBERSORT function)
-* `Blood/Spleen AS/CB.txt`: Same as `Processed` data but tab-delimited **and** retaining only the top ranked probe for probes mapping to the same gene symbol (as ranked by the Gaussian Process fit). 
+* `Blood/Spleen AS/CB.txt`: Same as `Processed` data but tab-delimited **and** anti-logged (i.e 2^x) (see CIBERSORT [documentation](https://cibersort.stanford.edu/)) **and** retaining only the top ranked probe for probes mapping to the same gene symbol (as ranked by the Gaussian Process fit). 
 
 # Analysis
 

@@ -1,7 +1,7 @@
 #***************************************************************************************#
 # Title:    Make microarray data amenable for deconvolution i.e set it up in the right format
 # Author:   John Joseph Valletta
-# Date:     23/08/2018
+# Date:     24/08/2018
 # Ref: https://www.nature.com/articles/srep40508
 # Ref: https://github.com/chenziyi/ImmuCC/blob/master/Microarray_Deconvolution.R
 # Output: Rows are samples/Columns are gene symbols ONLY
@@ -43,7 +43,6 @@ for (organ in ORGANS)
         # Some gene symbols have been updated since the release of:
         # http://emea.support.illumina.com/array/array_kits/mousewg-6_v2_expression_beadchip_kit/downloads.html
         # MouseWG-6_V2_0_R3_11278593_A.txt
-        
         # e.g Il8RB is now Cxcr2 (https://www.genecards.org/cgi-bin/carddisp.pl?gene=CXCR2)
         # In order to maximise the number of genes matching those in the signature matrix 
         # we will update these gene symbols manually here
@@ -65,19 +64,28 @@ for (organ in ORGANS)
         df$Symbol[df$Symbol %in% 'LOC100038897'] <- 'Klra8'
         df$Symbol[df$Symbol %in% 'LOC100046930'] <- 'Sh2d1a'
 
-        # Make symbol row name
+        # Make symbol row name - so that later I can anti-log the data.frame
         df$ProbeID <- NULL
         rownames(df) <- df$Symbol
         df$Symbol <- NULL
         
+        # Data should be in non-log space [see CIBERSORT docs]
+        df <- 2^df
+        df <- data.frame(Symbol=rownames(df), df)
+        rownames(df) <- NULL
+        
         # Write to disk
-        write.table(df, file.path(OUT_PATH, paste0(organ, strain, '.txt')), sep="\t")
+        write.table(df, file.path(OUT_PATH, paste0(organ, strain, '.txt')), sep="\t",
+                    row.names=FALSE, quote=FALSE)
     }
 }
 
 # Write sig matrix as .txt file
 df <- read.csv(SIG_PATH, header=T, row.names=1, check.names=F)
-write.table(df, file.path(OUT_PATH, 'SigMatrix.txt'), sep="\t")
+df <- data.frame(Symbol=rownames(df), df)
+rownames(df) <- NULL
+write.table(df, file.path(OUT_PATH, 'SigMatrix.txt'), sep="\t",
+            row.names=FALSE, quote=FALSE)
 
 #***************************************************************************************#
 # Genes present in signature matrix but not in Jinwgwen's data
