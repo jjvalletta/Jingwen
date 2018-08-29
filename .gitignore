@@ -11,3 +11,4 @@ Data/DeconReady/
 CellType/Results/
 CellType/_output/
 CellType/cibersort.R
+CellType/cibersort*.R

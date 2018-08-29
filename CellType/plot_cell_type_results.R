@@ -43,6 +43,6 @@ for (organ in ORGANS)
         g <- ggplot(res, aes(x=Mixture, y=Proportion, fill=CellType, alpha=1-P.value)) + 
             geom_bar(position='fill', stat='identity')
         
-        ggsave(filename=paste0(organ, strain, '.pdf'), plot=g)
+        ggsave(filename=paste0(organ, strain, '.pdf'), plot=g, width=297, height=210, units='mm')
     }
 }

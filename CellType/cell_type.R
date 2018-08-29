@@ -28,7 +28,7 @@ SIG_MATRIX <- file.path(DATA_PATH, "SigMatrix.txt")
 # No. of permutations to compute  an empirical P value for the deconvolution using 
 # Monte Carlo sampling. To test the null hypothesis that no cell types in the signature matrix 
 # are present in a given gene expression profile mixture 
-NPerm <- 201 
+NPerm <- 401 
 
 #***************************************************************************************#
 # Main function
